@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>GRAM</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Фоновые элементы -->
+    <div class="gradient-bg"></div>
+    <div class="noise"></div>
+    <canvas id="canvas" class="canvas-bg"></canvas>
+    
+    <!-- Основное приложение -->
+    <div class="app">
+        <!-- Верхняя панель -->
+        <header class="header">
+            <div class="logo">
+                <span class="logo-text">GRAM</span>
+                <span class="logo-dot"></span>
+            </div>
+            
+            <div class="header-right">
+                <div class="balance-wrapper">
+                    <span class="balance-label">БАЛАНС</span>
+                    <span class="balance-value" id="topBalance">0</span>
+                    <span class="balance-currency">GRAM</span>
+                </div>
+                
+                <button class="menu-btn" id="menuBtn">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" fill="currentColor"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Меню (выезжающая панель) -->
+        <div class="menu-panel" id="menuPanel">
+            <div class="menu-header">
+                <span class="menu-title">МЕНЮ</span>
+                <button class="menu-close" id="menuClose">✕</button>
+            </div>
+            <div class="menu-items">
+                <button class="menu-item" data-page="profile">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="currentColor"/>
+                    </svg>
+                    <span>Профиль</span>
+                </button>
+                <button class="menu-item" data-page="cases">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M20 6h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM10 4h4v2h-4V4z" fill="currentColor"/>
+                    </svg>
+                    <span>Кейсы</span>
+                </button>
+                <button class="menu-item" data-page="inventory">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M20 2H4c-1 0-2 .9-2 2v3.01c0 .72.43 1.34 1 1.69V20c0 1.1 1.1 2 2 2h14c.9 0 2-.9 2-2V8.7c.57-.35 1-.97 1-1.69V4c0-1.1-1-2-2-2zm-6 12h-4c-.55 0-1-.45-1-1s.45-1 1-1h4c.55 0 1 .45 1 1s-.45 1-1 1z" fill="currentColor"/>
+                    </svg>
+                    <span>Инвентарь</span>
+                </button>
+                <button class="menu-item" data-page="promo">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z" fill="currentColor"/>
+                    </svg>
+                    <span>Промо</span>
+                </button>
+                <button class="menu-item" data-page="top">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M3 5v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2zm8 10H7v-3h4v3zm6-4h-4v-3h4v3z" fill="currentColor"/>
+                    </svg>
+                    <span>Топ</span>
+                </button>
+                <button class="menu-item" data-page="history">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="currentColor"/>
+                    </svg>
+                    <span>История</span>
+                </button>
+                <button class="menu-item admin-only" data-page="admin" id="adminMenuItem">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm0 13c-2.33 0-4.31-1.46-5.11-3.5h10.22c-.8 2.04-2.78 3.5-5.11 3.5z" fill="currentColor"/>
+                    </svg>
+                    <span>Админ</span>
+                </button>
+            </div>
+            <div class="menu-footer">
+                <div class="support-info">
+                    <span>Поддержка</span>
+                    <span class="support-username">@internetcomunity</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Оверлей для меню -->
+        <div class="menu-overlay" id="menuOverlay"></div>
+
+        <!-- Приветствие -->
+        <section class="greeting-section">
+            <h1 class="greeting-title">
+                Привет, <span id="userName">загрузка...</span>
+            </h1>
+            <p class="greeting-subtitle">Добро пожаловать в GRAM</p>
+        </section>
+
+        <!-- Карточка быстрого старта -->
+        <section class="quick-start">
+            <h2 class="section-title">БЫСТРЫЙ СТАРТ</h2>
+            <div class="quick-grid">
+                <div class="quick-card" data-page="cases">
+                    <div class="quick-icon cases-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M20 6h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM10 4h4v2h-4V4z" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <div class="quick-info">
+                        <h3>Кейсы</h3>
+                        <p>Открывай и продавай скины</p>
+                    </div>
+                </div>
+
+                <div class="quick-card" data-page="profile">
+                    <div class="quick-icon profile-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <div class="quick-info">
+                        <h3>Профиль</h3>
+                        <p>Баланс и статистика</p>
+                    </div>
+                </div>
+
+                <div class="quick-card" data-page="promo">
+                    <div class="quick-icon promo-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <div class="quick-info">
+                        <h3>Промокоды</h3>
+                        <p>Активируй бонусы</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Контейнер для страниц -->
+        <div class="pages-container">
+            <!-- Профиль -->
+            <div id="profile-page" class="page active">
+                <div class="profile-card">
+                    <h2 class="card-title">ПРОФИЛЬ</h2>
+                    
+                    <div class="profile-avatar">
+                        <div class="avatar-placeholder" id="avatarPlaceholder">G</div>
+                    </div>
+
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">ID</span>
+                            <span class="stat-value" id="profileId">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">ИМЯ</span>
+                            <span class="stat-value" id="profileName">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">USERNAME</span>
+                            <span class="stat-value" id="profileUsername">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">РЕГИСТРАЦИЯ</span>
+                            <span class="stat-value" id="profileDate">-</span>
+                        </div>
+                    </div>
+
+                    <div class="balance-big">
+                        <span class="balance-big-label">ТЕКУЩИЙ БАЛАНС</span>
+                        <span class="balance-big-value" id="profileBalance">0</span>
+                        <span class="balance-big-currency">GRAM</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Кейсы -->
+            <div id="cases-page" class="page">
+                <div class="cases-grid">
+                    <div class="case-card bomzh" onclick="openCase('bomzh')">
+                        <div class="case-glow"></div>
+                        <h3 class="case-title">BOMZH</h3>
+                        <div class="case-price">50 000</div>
+                        <div class="case-currency">GRAM</div>
+                        <div class="case-actions">
+                            <button class="case-btn primary" onclick="event.stopPropagation(); openCase('bomzh')">1x</button>
+                            <button class="case-btn secondary" onclick="event.stopPropagation(); openMassCase('bomzh', 10)">10x</button>
+                        </div>
+                    </div>
+
+                    <div class="case-card voin" onclick="openCase('voin')">
+                        <div class="case-glow"></div>
+                        <h3 class="case-title">VOIN</h3>
+                        <div class="case-price">200 000</div>
+                        <div class="case-currency">GRAM</div>
+                        <div class="case-actions">
+                            <button class="case-btn primary" onclick="event.stopPropagation(); openCase('voin')">1x</button>
+                            <button class="case-btn secondary" onclick="event.stopPropagation(); openMassCase('voin', 10)">10x</button>
+                        </div>
+                    </div>
+
+                    <div class="case-card legend" onclick="openCase('legend')">
+                        <div class="case-glow"></div>
+                        <h3 class="case-title">LEGEND</h3>
+                        <div class="case-price">1 000 000</div>
+                        <div class="case-currency">GRAM</div>
+                        <div class="case-actions">
+                            <button class="case-btn primary" onclick="event.stopPropagation(); openCase('legend')">1x</button>
+                            <button class="case-btn secondary" onclick="event.stopPropagation(); openMassCase('legend', 10)">10x</button>
+                        </div>
+                    </div>
+
+                    <div class="case-card mythic" onclick="openCase('mythic')">
+                        <div class="case-glow"></div>
+                        <h3 class="case-title">MYTHIC</h3>
+                        <div class="case-price">5 000 000</div>
+                        <div class="case-currency">GRAM</div>
+                        <div class="case-actions">
+                            <button class="case-btn primary" onclick="event.stopPropagation(); openCase('mythic')">1x</button>
+                            <button class="case-btn secondary" onclick="event.stopPropagation(); openMassCase('mythic', 10)">10x</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bonus-case" id="bonusCase">
+                    <div class="bonus-glow"></div>
+                    <h3 class="bonus-title">BONUS CASE</h3>
+                    <div class="bonus-timer" id="bonusTimer">Доступен</div>
+                    <button class="bonus-btn" id="openBonusBtn">ОТКРЫТЬ БЕСПЛАТНО</button>
+                </div>
+            </div>
+
+            <!-- Инвентарь -->
+            <div id="inventory-page" class="page">
+                <div class="inventory-header">
+                    <div class="inventory-stats">
+                        <div class="stat-box">
+                            <span class="stat-label">ВСЕГО</span>
+                            <span class="stat-number" id="skinCount">0</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-label">СТОИМОСТЬ</span>
+                            <span class="stat-number" id="totalValue">0</span>
+                            <span class="stat-currency">GRAM</span>
+                        </div>
+                    </div>
+                    <button class="sell-all-btn" id="sellAllBtn">ПРОДАТЬ ВСЕ</button>
+                </div>
+
+                <div id="skinsList" class="skins-grid">
+                    <!-- Скины будут загружаться сюда -->
+                </div>
+            </div>
+
+            <!-- Промокоды -->
+            <div id="promo-page" class="page">
+                <div class="promo-container">
+                    <div class="promo-input-group">
+                        <input type="text" class="promo-input" id="promoCode" placeholder="ВВЕДИТЕ ПРОМОКОД" maxlength="20">
+                        <button class="promo-btn" id="activatePromo">АКТИВИРОВАТЬ</button>
+                    </div>
+                    <div id="promoResult" class="promo-result"></div>
+                </div>
+            </div>
+
+            <!-- Топ -->
+            <div id="top-page" class="page">
+                <div id="topList" class="top-list">
+                    <!-- Топ будет загружаться сюда -->
+                </div>
+            </div>
+
+            <!-- История -->
+            <div id="history-page" class="page">
+                <div id="historyList" class="history-list">
+                    <!-- История будет загружаться сюда -->
+                </div>
+            </div>
+
+            <!-- Админ панель -->
+            <div id="admin-page" class="page">
+                <div class="admin-grid">
+                    <div class="admin-card">
+                        <h3 class="admin-card-title">СТАТИСТИКА</h3>
+                        <div class="stats-grid" id="adminStats">
+                            <div class="admin-stat">
+                                <span class="admin-stat-label">Пользователи</span>
+                                <span class="admin-stat-value" id="totalUsers">0</span>
+                            </div>
+                            <div class="admin-stat">
+                                <span class="admin-stat-label">Сегодня</span>
+                                <span class="admin-stat-value" id="todayUsers">0</span>
+                            </div>
+                            <div class="admin-stat">
+                                <span class="admin-stat-label">Баланс</span>
+                                <span class="admin-stat-value" id="totalBalance">0</span>
+                            </div>
+                            <div class="admin-stat">
+                                <span class="admin-stat-label">Промо</span>
+                                <span class="admin-stat-value" id="totalPromos">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="admin-card">
+                        <h3 class="admin-card-title">БАЛАНС</h3>
+                        <input type="number" class="admin-input" id="adminUserId" placeholder="ID пользователя">
+                        <input type="text" class="admin-input" id="adminAmount" placeholder="Сумма">
+                        <div class="admin-btn-group">
+                            <button class="admin-btn success" onclick="adminAction('give')">ВЫДАТЬ</button>
+                            <button class="admin-btn danger" onclick="adminAction('take')">СПИСАТЬ</button>
+                            <button class="admin-btn warning" onclick="adminAction('reset')">ОБНУЛИТЬ</button>
+                        </div>
+                    </div>
+
+                    <div class="admin-card">
+                        <h3 class="admin-card-title">ПРОМОКОД</h3>
+                        <input type="text" class="admin-input" id="promoCodeAdmin" placeholder="Код">
+                        <input type="text" class="admin-input" id="promoAmount" placeholder="Сумма">
+                        <input type="number" class="admin-input" id="promoUses" placeholder="Использований (0=∞)">
+                        <button class="admin-btn primary" onclick="createPromo()">СОЗДАТЬ</button>
+                    </div>
+
+                    <div class="admin-card">
+                        <h3 class="admin-card-title">РАССЫЛКА</h3>
+                        <textarea class="admin-input" id="broadcastText" rows="4" placeholder="Текст сообщения..."></textarea>
+                        <button class="admin-btn primary" onclick="sendBroadcast()">ОТПРАВИТЬ</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно -->
+    <div class="modal" id="resultModal">
+        <div class="modal-content">
+            <h2 class="modal-title" id="modalTitle">РЕЗУЛЬТАТ</h2>
+            <div class="modal-body" id="modalBody"></div>
+            <button class="modal-close-btn" onclick="closeModal()">ЗАКРЫТЬ</button>
+        </div>
+    </div>
+
+    <!-- Модальное окно покупки -->
+    <div class="modal" id="buyModal">
+        <div class="modal-content">
+            <h2 class="modal-title">ПОПОЛНЕНИЕ</h2>
+            <div class="modal-body">
+                <p class="buy-text">Для покупки GRAM свяжитесь с разработчиком</p>
+                <div class="support-card">
+                    <div class="support-label">ПОДДЕРЖКА</div>
+                    <div class="support-value">@internetcomunity</div>
+                </div>
+            </div>
+            <button class="modal-close-btn" onclick="closeBuyModal()">ЗАКРЫТЬ</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
