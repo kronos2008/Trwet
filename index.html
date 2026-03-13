@@ -1,0 +1,1536 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GRAM · PREMIUM</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            color: #fff;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Анимированные снежинки/частицы */
+        .snowflake {
+            position: fixed;
+            color: rgba(255, 255, 255, 0.4);
+            user-select: none;
+            pointer-events: none;
+            z-index: 0;
+            animation: fall linear infinite;
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+
+        /* Стеклянный эффект */
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        .app {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            padding-bottom: 100px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Приветствие */
+        .welcome-header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        .welcome-title {
+            font-size: 42px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .user-greeting {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .user-greeting span {
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Инструкция */
+        .instruction-card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 32px;
+            padding: 30px 20px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+            animation: pulseGlow 2s infinite;
+        }
+
+        .instruction-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent 30%,
+                rgba(255, 255, 255, 0.1) 50%,
+                transparent 70%
+            );
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            to {
+                transform: translateX(100%) translateY(100%);
+            }
+        }
+
+        .instruction-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-align: center;
+            background: linear-gradient(135deg, #fff 0%, #e0e0e0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .instruction-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .instruction-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .instruction-item:hover {
+            transform: translateY(-5px) scale(1.02);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(102, 126, 234, 0.5);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .instruction-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .instruction-text {
+            font-size: 14px;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        /* Навигация */
+        .nav {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 40px);
+            max-width: 500px;
+            background: rgba(20, 20, 40, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 40px;
+            padding: 12px;
+            display: flex;
+            justify-content: space-around;
+            z-index: 100;
+            animation: slideUp 0.5s ease;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 24px;
+            padding: 8px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-btn::before {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+            border-radius: 3px;
+        }
+
+        .nav-btn:hover {
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .nav-btn.active {
+            color: white;
+            background: linear-gradient(135deg, #667eea20, #764ba220);
+        }
+
+        .nav-btn.active::before {
+            width: 30px;
+        }
+
+        /* Страницы */
+        .page {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Карточки для разделов */
+        .section-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 32px;
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .section-card:hover {
+            border-color: rgba(102, 126, 234, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #fff, #a0a0a0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Профиль */
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .info-label {
+            font-size: 16px;
+            font-weight: 500;
+            opacity: 0.7;
+        }
+
+        .info-value {
+            font-size: 18px;
+            font-weight: 600;
+            font-family: 'Monaco', monospace;
+        }
+
+        .balance-value {
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #f6d365, #fda085);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Кейсы */
+        .bonus-case {
+            background: linear-gradient(135deg, #667eea40, #764ba240);
+            border-radius: 30px;
+            padding: 25px;
+            margin-bottom: 30px;
+            text-align: center;
+            border: 2px solid rgba(102, 126, 234, 0.5);
+            animation: borderPulse 2s infinite;
+        }
+
+        @keyframes borderPulse {
+            0%, 100% { border-color: rgba(102, 126, 234, 0.5); }
+            50% { border-color: rgba(118, 75, 162, 0.8); }
+        }
+
+        .bonus-timer {
+            font-size: 18px;
+            margin: 15px 0;
+            color: #f6d365;
+        }
+
+        .cases-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .case-card {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 24px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .case-card:hover {
+            transform: translateY(-5px);
+            border-color: #667eea;
+            box-shadow: 0 20px 30px rgba(102, 126, 234, 0.2);
+        }
+
+        .case-emoji {
+            font-size: 48px;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 0 10px rgba(102, 126, 234, 0.5));
+        }
+
+        .case-name {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .case-price {
+            font-size: 16px;
+            font-weight: 600;
+            color: #f6d365;
+            margin-bottom: 15px;
+        }
+
+        .case-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .case-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .case-btn.small {
+            flex: 0.5;
+        }
+
+        .case-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Инвентарь */
+        .inventory-stats {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
+
+        .skins-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .skin-item {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .skin-item:hover {
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .skin-info {
+            flex: 1;
+        }
+
+        .skin-name {
+            font-size: 16px;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .skin-rarity {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .skin-price {
+            font-size: 16px;
+            font-weight: 700;
+            color: #f6d365;
+            margin-right: 15px;
+        }
+
+        .sell-btn {
+            background: linear-gradient(135deg, #f6d365, #fda085);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .sell-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(246, 211, 101, 0.4);
+        }
+
+        .sell-all-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #f6d365, #fda085);
+            border: none;
+            color: white;
+            padding: 18px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 18px;
+            cursor: pointer;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+        }
+
+        .sell-all-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 30px rgba(246, 211, 101, 0.3);
+        }
+
+        /* Промокод */
+        .promo-input {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .promo-input input {
+            flex: 1;
+            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 40px;
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .promo-input input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .promo-input button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .promo-input button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        /* История */
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .history-item {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-left: 4px solid;
+            transition: all 0.3s ease;
+        }
+
+        .history-item.positive {
+            border-left-color: #34c759;
+        }
+
+        .history-item.negative {
+            border-left-color: #ff3b30;
+        }
+
+        .history-icon {
+            font-size: 24px;
+        }
+
+        .history-details {
+            flex: 1;
+        }
+
+        .history-type {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .history-date {
+            font-size: 12px;
+            opacity: 0.5;
+        }
+
+        .history-amount {
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .history-amount.positive {
+            color: #34c759;
+        }
+
+        .history-amount.negative {
+            color: #ff3b30;
+        }
+
+        /* Топ */
+        .top-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .top-item {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .top-item:hover {
+            transform: translateX(5px);
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .top-rank {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 20px;
+        }
+
+        .top-info {
+            flex: 1;
+        }
+
+        .top-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .top-balance {
+            font-weight: 700;
+            color: #f6d365;
+        }
+
+        /* Модальное окно */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-radius: 40px;
+            padding: 30px;
+            max-width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+            animation: scaleIn 0.3s ease;
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .modal-close {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Анимации */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translate(-50%, 100%);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, 0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 30px rgba(102, 126, 234, 0.3); }
+            50% { box-shadow: 0 0 50px rgba(118, 75, 162, 0.5); }
+        }
+
+        /* Стили для админки */
+        .admin-only {
+            display: none;
+        }
+
+        .admin-panel .nav-btn[data-page="admin"] {
+            display: block;
+        }
+
+        .admin-section {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .admin-section h3 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: #f6d365;
+        }
+
+        .admin-input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .admin-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin: 5px 0;
+        }
+
+        .admin-btn.danger {
+            background: linear-gradient(135deg, #ff3b30, #ff6b6b);
+        }
+
+        .admin-btn.success {
+            background: linear-gradient(135deg, #34c759, #4cd964);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .stat-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 16px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: #f6d365;
+        }
+    </style>
+</head>
+<body>
+    <!-- Анимированные снежинки (будут созданы через JS) -->
+    <div id="snowflakes-container"></div>
+
+    <div class="app">
+        <!-- Приветственный экран с инструкцией -->
+        <div class="welcome-header">
+            <div class="welcome-title">✦ GRAM ✦</div>
+            <div class="user-greeting">
+                <span id="userName">...</span>
+            </div>
+        </div>
+
+        <!-- Инструкция -->
+        <div class="instruction-card">
+            <div class="instruction-title">⚡ ИНСТРУКЦИЯ ⚡</div>
+            <div class="instruction-grid">
+                <div class="instruction-item">
+                    <div class="instruction-icon">🎮</div>
+                    <div class="instruction-text">Игры в чатах:<br>мины, тк, шкатулки</div>
+                </div>
+                <div class="instruction-item">
+                    <div class="instruction-icon">💎</div>
+                    <div class="instruction-text">Кейсы здесь:<br>открывай и продавай</div>
+                </div>
+                <div class="instruction-item">
+                    <div class="instruction-icon">👤</div>
+                    <div class="instruction-text">Профиль + баланс<br>все данные здесь</div>
+                </div>
+                <div class="instruction-item">
+                    <div class="instruction-icon">🎫</div>
+                    <div class="instruction-text">Промокоды<br>активируй в приложении</div>
+                </div>
+                <div class="instruction-item">
+                    <div class="instruction-icon">📊</div>
+                    <div class="instruction-text">Топ игроков<br>кто самый богатый</div>
+                </div>
+                <div class="instruction-item">
+                    <div class="instruction-icon">📦</div>
+                    <div class="instruction-text">Инвентарь<br>продавай скины</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Навигация -->
+        <div class="nav" id="nav">
+            <button class="nav-btn active" data-page="profile">👤</button>
+            <button class="nav-btn" data-page="cases">🎁</button>
+            <button class="nav-btn" data-page="inventory">📦</button>
+            <button class="nav-btn" data-page="promo">🎫</button>
+            <button class="nav-btn" data-page="top">🏆</button>
+            <button class="nav-btn" data-page="history">📜</button>
+            <button class="nav-btn admin-only" data-page="admin" id="adminBtn">⚡</button>
+        </div>
+
+        <!-- СТРАНИЦА: Профиль -->
+        <div id="profile-page" class="page active">
+            <div class="section-card">
+                <div class="section-title">✦ ПРОФИЛЬ ✦</div>
+                <div class="profile-info">
+                    <div class="info-row">
+                        <span class="info-label">🆔 ID</span>
+                        <span class="info-value" id="profileId">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">👤 Имя</span>
+                        <span class="info-value" id="profileName">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">🌐 Username</span>
+                        <span class="info-value" id="profileUsername">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">💰 Баланс</span>
+                        <span class="info-value balance-value" id="profileBalance">0</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">📅 Регистрация</span>
+                        <span class="info-value" id="profileDate">-</span>
+                    </div>
+                </div>
+                <button class="sell-all-btn" id="refreshProfileBtn" style="margin-top: 10px;">⟳ ОБНОВИТЬ</button>
+            </div>
+        </div>
+
+        <!-- СТРАНИЦА: Кейсы -->
+        <div id="cases-page" class="page">
+            <div class="section-card">
+                <div class="section-title">✦ КЕЙСЫ ✦</div>
+                
+                <!-- Бонус кейс -->
+                <div class="bonus-case" id="bonusCase">
+                    <div class="case-emoji">🎁</div>
+                    <div style="font-size: 24px; font-weight: 700; margin-bottom: 10px;">БОНУС КЕЙС</div>
+                    <div class="bonus-timer" id="bonusTimer">Доступен</div>
+                    <button class="case-btn" id="openBonusBtn" style="width: 100%;">ОТКРЫТЬ БЕСПЛАТНО</button>
+                </div>
+
+                <!-- Платные кейсы -->
+                <div class="cases-grid">
+                    <div class="case-card" onclick="openCase('bomzh')">
+                        <div class="case-emoji">📦</div>
+                        <div class="case-name">КЕЙС БОМЖА</div>
+                        <div class="case-price">50 000 GRAM</div>
+                        <div class="case-buttons">
+                            <button class="case-btn small" onclick="event.stopPropagation(); openCase('bomzh')">1x</button>
+                            <button class="case-btn small" onclick="event.stopPropagation(); openMassCase('bomzh', 10)">10x</button>
+                        </div>
+                    </div>
+                    <div class="case-card" onclick="openCase('voin')">
+                        <div class="case-emoji">⚔️</div>
+                        <div class="case-name">КЕЙС ВОИНА</div>
+                        <div class="case-price">200 000 GRAM</div>
+                        <div class="case-buttons">
+                            <button class="case-btn small" onclick="event.stopPropagation(); openCase('voin')">1x</button>
+                            <button class="case-btn small" onclick="event.stopPropagation(); openMassCase('voin', 10)">10x</button>
+                        </div>
+                    </div>
+                    <div class="case-card" onclick="openCase('legend')">
+                        <div class="case-emoji">👑</div>
+                        <div class="case-name">КЕЙС ЛЕГЕНДЫ</div>
+                        <div class="case-price">1 000 000 GRAM</div>
+                        <div class="case-buttons">
+                            <button class="case-btn small" onclick="event.stopPropagation(); openCase('legend')">1x</button>
+                            <button class="case-btn small" onclick="event.stopPropagation(); openMassCase('legend', 10)">10x</button>
+                        </div>
+                    </div>
+                    <div class="case-card" onclick="openCase('mythic')">
+                        <div class="case-emoji">💎</div>
+                        <div class="case-name">МИФИЧЕСКИЙ</div>
+                        <div class="case-price">5 000 000 GRAM</div>
+                        <div class="case-buttons">
+                            <button class="case-btn small" onclick="event.stopPropagation(); openCase('mythic')">1x</button>
+                            <button class="case-btn small" onclick="event.stopPropagation(); openMassCase('mythic', 10)">10x</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- СТРАНИЦА: Инвентарь -->
+        <div id="inventory-page" class="page">
+            <div class="section-card">
+                <div class="section-title">✦ ИНВЕНТАРЬ ✦</div>
+                <div class="inventory-stats">
+                    <span>📦 Всего: <span id="skinCount">0</span></span>
+                    <span>💰 Стоимость: <span id="totalValue">0</span> GRAM</span>
+                </div>
+                <div id="skinsList" class="skins-list">
+                    <!-- Скины будут загружены сюда -->
+                </div>
+                <button class="sell-all-btn" id="sellAllBtn">💰 ПРОДАТЬ ВСЕ СКИНЫ</button>
+            </div>
+        </div>
+
+        <!-- СТРАНИЦА: Промокод -->
+        <div id="promo-page" class="page">
+            <div class="section-card">
+                <div class="section-title">✦ ПРОМОКОД ✦</div>
+                <div class="promo-input">
+                    <input type="text" id="promoCode" placeholder="ВВЕДИТЕ КОД" maxlength="20">
+                    <button id="activatePromo">АКТИВИРОВАТЬ</button>
+                </div>
+                <div id="promoResult" class="info-row" style="margin-top: 15px; display: none;"></div>
+            </div>
+        </div>
+
+        <!-- СТРАНИЦА: Топ -->
+        <div id="top-page" class="page">
+            <div class="section-card">
+                <div class="section-title">✦ ТОП ИГРОКОВ ✦</div>
+                <div id="topList" class="top-list">
+                    <!-- Топ будет загружен сюда -->
+                </div>
+            </div>
+        </div>
+
+        <!-- СТРАНИЦА: История -->
+        <div id="history-page" class="page">
+            <div class="section-card">
+                <div class="section-title">✦ ИСТОРИЯ ✦</div>
+                <div id="historyList" class="history-list">
+                    <!-- История будет загружена сюда -->
+                </div>
+            </div>
+        </div>
+
+        <!-- СТРАНИЦА: Админ панель -->
+        <div id="admin-page" class="page">
+            <div class="section-card">
+                <div class="section-title">⚡ АДМИН ПАНЕЛЬ ⚡</div>
+                
+                <div class="admin-section">
+                    <h3>📊 СТАТИСТИКА</h3>
+                    <div class="stats-grid" id="adminStats">
+                        <div class="stat-item">
+                            <div>Всего</div>
+                            <div class="stat-value" id="totalUsers">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div>Сегодня</div>
+                            <div class="stat-value" id="todayUsers">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div>Баланс</div>
+                            <div class="stat-value" id="totalBalance">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div>Промо</div>
+                            <div class="stat-value" id="totalPromos">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-section">
+                    <h3>💰 БАЛАНС</h3>
+                    <input type="number" class="admin-input" id="adminUserId" placeholder="ID пользователя">
+                    <input type="text" class="admin-input" id="adminAmount" placeholder="Сумма">
+                    <button class="admin-btn success" onclick="adminAction('give')">➕ ВЫДАТЬ</button>
+                    <button class="admin-btn danger" onclick="adminAction('take')">➖ СПИСАТЬ</button>
+                    <button class="admin-btn" onclick="adminAction('reset')">🔄 ОБНУЛИТЬ</button>
+                </div>
+
+                <div class="admin-section">
+                    <h3>🎫 ПРОМОКОД</h3>
+                    <input type="text" class="admin-input" id="promoCodeAdmin" placeholder="Код">
+                    <input type="text" class="admin-input" id="promoAmount" placeholder="Сумма">
+                    <input type="number" class="admin-input" id="promoUses" placeholder="Использований (0=∞)">
+                    <button class="admin-btn" onclick="createPromo()">✨ СОЗДАТЬ</button>
+                </div>
+
+                <div class="admin-section">
+                    <h3>📢 РАССЫЛКА</h3>
+                    <textarea class="admin-input" id="broadcastText" rows="3" placeholder="Текст..."></textarea>
+                    <button class="admin-btn" onclick="sendBroadcast()">📨 ОТПРАВИТЬ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для результатов -->
+    <div id="resultModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-title" id="modalTitle">РЕЗУЛЬТАТ</div>
+            <div id="modalBody" style="margin-bottom: 20px;"></div>
+            <button class="modal-close" onclick="closeModal()">ЗАКРЫТЬ</button>
+        </div>
+    </div>
+
+    <script>
+        // ========== ИНИЦИАЛИЗАЦИЯ TELEGRAM ==========
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+
+        // Данные пользователя
+        const initData = tg.initDataUnsafe;
+        let userData = initData.user || {};
+        let isAdmin = false;
+        let audioContext = null;
+
+        // ========== СОЗДАНИЕ СНЕЖИНОК ==========
+        function createSnowflakes() {
+            const container = document.getElementById('snowflakes-container');
+            for (let i = 0; i < 50; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.className = 'snowflake';
+                snowflake.style.left = Math.random() * 100 + '%';
+                snowflake.style.animationDuration = Math.random() * 3 + 2 + 's';
+                snowflake.style.animationDelay = Math.random() * 5 + 's';
+                snowflake.style.fontSize = Math.random() * 20 + 10 + 'px';
+                snowflake.innerHTML = ['✦', '❄', '✧', '★', '☆', '✶', '✷', '✹'][Math.floor(Math.random() * 8)];
+                snowflake.style.opacity = Math.random() * 0.3 + 0.2;
+                container.appendChild(snowflake);
+            }
+        }
+
+        // ========== ЗВУК ОТКРЫТИЯ КЕЙСА ==========
+        function playCaseSound() {
+            try {
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(200, audioContext.currentTime + 0.3);
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.3);
+            } catch (e) {
+                console.log('Audio not supported');
+            }
+        }
+
+        // ========== ФОРМАТИРОВАНИЕ ЧИСЕЛ ==========
+        function formatNumber(num) {
+            if (!num) return '0';
+            num = num.toString();
+            let parts = [];
+            for (let i = num.length - 3; i > -3; i -= 3) {
+                parts.unshift(num.slice(Math.max(0, i), i + 3));
+            }
+            return parts.join(' ');
+        }
+
+        // ========== ОТПРАВКА ДАННЫХ БОТУ ==========
+        function sendToBot(data) {
+            tg.sendData(JSON.stringify(data));
+        }
+
+        // ========== ПОКАЗ МОДАЛЬНОГО ОКНА ==========
+        function showModal(title, body) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalBody').innerHTML = body;
+            document.getElementById('resultModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('resultModal').classList.remove('active');
+        }
+
+        // ========== ЗАГРУЗКА ПРОФИЛЯ ==========
+        function loadProfile() {
+            document.getElementById('profileId').textContent = userData.id || '-';
+            document.getElementById('profileName').textContent = userData.first_name || '-';
+            document.getElementById('profileUsername').textContent = userData.username ? '@' + userData.username : '-';
+            document.getElementById('userName').textContent = userData.first_name || 'Гость';
+            
+            sendToBot({ action: 'get_profile' });
+            sendToBot({ action: 'get_balance' });
+        }
+
+        // ========== ЗАГРУЗКА ИНВЕНТАРЯ ==========
+        function loadInventory() {
+            sendToBot({ action: 'get_inventory' });
+        }
+
+        // ========== ЗАГРУЗКА ТОПА ==========
+        function loadTop() {
+            sendToBot({ action: 'get_top' });
+        }
+
+        // ========== ЗАГРУЗКА ИСТОРИИ ==========
+        function loadHistory() {
+            sendToBot({ action: 'get_history' });
+        }
+
+        // ========== ПРОВЕРКА БОНУС КЕЙСА ==========
+        function checkBonusCase() {
+            sendToBot({ action: 'check_bonus' });
+        }
+
+        // ========== ОТКРЫТИЕ КЕЙСА ==========
+        function openCase(caseType) {
+            playCaseSound();
+            const prices = {
+                'bomzh': '50000',
+                'voin': '200000',
+                'legend': '1000000',
+                'mythic': '5000000'
+            };
+            const names = {
+                'bomzh': 'КЕЙС БОМЖА',
+                'voin': 'КЕЙС ВОИНА',
+                'legend': 'КЕЙС ЛЕГЕНДЫ',
+                'mythic': 'МИФИЧЕСКИЙ КЕЙС'
+            };
+            
+            if (confirm(`❓ ОТКРЫТЬ ${names[caseType]} ЗА ${formatNumber(prices[caseType])} GRAM?`)) {
+                sendToBot({
+                    action: 'open_case',
+                    case_type: caseType
+                });
+            }
+        }
+
+        function openMassCase(caseType, count) {
+            playCaseSound();
+            const prices = {
+                'bomzh': '50000',
+                'voin': '200000',
+                'legend': '1000000',
+                'mythic': '5000000'
+            };
+            const names = {
+                'bomzh': 'КЕЙС БОМЖА',
+                'voin': 'КЕЙС ВОИНА',
+                'legend': 'КЕЙС ЛЕГЕНДЫ',
+                'mythic': 'МИФИЧЕСКИЙ КЕЙС'
+            };
+            
+            const totalPrice = parseInt(prices[caseType]) * count;
+            
+            if (confirm(`❓ ОТКРЫТЬ ${count}x ${names[caseType]} ЗА ${formatNumber(totalPrice.toString())} GRAM?`)) {
+                sendToBot({
+                    action: 'open_mass_case',
+                    case_type: caseType,
+                    count: count
+                });
+            }
+        }
+
+        // ========== ОТКРЫТИЕ БОНУС КЕЙСА ==========
+        document.getElementById('openBonusBtn').addEventListener('click', () => {
+            playCaseSound();
+            sendToBot({ action: 'open_bonus_case' });
+        });
+
+        // ========== ПРОДАЖА СКИНА ==========
+        function sellSkin(skinId) {
+            if (confirm('❓ ПРОДАТЬ ЭТОТ СКИН?')) {
+                sendToBot({
+                    action: 'sell_skin',
+                    skin_id: skinId
+                });
+            }
+        }
+
+        // ========== ПРОДАЖА ВСЕХ СКИНОВ ==========
+        document.getElementById('sellAllBtn').addEventListener('click', () => {
+            if (confirm('⚠️ ПРОДАТЬ ВСЕ СКИНЫ?\n\nЭто действие нельзя отменить!')) {
+                if (confirm('⚡ ПОСЛЕДНЕЕ ПРЕДУПРЕЖДЕНИЕ!\n\nВы уверены на 100%?')) {
+                    sendToBot({ action: 'sell_all_skins' });
+                }
+            }
+        });
+
+        // ========== АКТИВАЦИЯ ПРОМОКОДА ==========
+        document.getElementById('activatePromo').addEventListener('click', () => {
+            const code = document.getElementById('promoCode').value.trim().toUpperCase();
+            if (!code) {
+                showModal('ОШИБКА', '❌ ВВЕДИТЕ ПРОМОКОД');
+                return;
+            }
+            sendToBot({
+                action: 'activate_promo',
+                code: code
+            });
+        });
+
+        // ========== АДМИН ДЕЙСТВИЯ ==========
+        function adminAction(action) {
+            const userId = document.getElementById('adminUserId').value.trim();
+            const amount = document.getElementById('adminAmount').value.trim();
+            
+            if (!userId) {
+                showModal('ОШИБКА', '❌ ВВЕДИТЕ ID');
+                return;
+            }
+            
+            sendToBot({
+                action: 'admin',
+                command: 'balance_action',
+                admin_action: action,
+                user_id: parseInt(userId),
+                amount: amount
+            });
+        }
+
+        function createPromo() {
+            const code = document.getElementById('promoCodeAdmin').value.trim().toUpperCase();
+            const amount = document.getElementById('promoAmount').value.trim();
+            const uses = document.getElementById('promoUses').value.trim() || '0';
+            
+            if (!code || !amount) {
+                showModal('ОШИБКА', '❌ ЗАПОЛНИТЕ ПОЛЯ');
+                return;
+            }
+            
+            sendToBot({
+                action: 'admin',
+                command: 'create_promo',
+                code: code,
+                amount: amount,
+                uses: parseInt(uses)
+            });
+        }
+
+        function sendBroadcast() {
+            const text = document.getElementById('broadcastText').value.trim();
+            if (!text) {
+                showModal('ОШИБКА', '❌ ВВЕДИТЕ ТЕКСТ');
+                return;
+            }
+            
+            if (confirm(`📢 ОТПРАВИТЬ РАССЫЛКУ?\n\nТекст:\n${text}`)) {
+                sendToBot({
+                    action: 'admin',
+                    command: 'broadcast',
+                    text: text
+                });
+            }
+        }
+
+        // ========== ОБНОВЛЕНИЕ ПРОФИЛЯ ==========
+        document.getElementById('refreshProfileBtn').addEventListener('click', () => {
+            sendToBot({ action: 'get_profile' });
+            sendToBot({ action: 'get_balance' });
+        });
+
+        // ========== НАВИГАЦИЯ ==========
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const page = btn.dataset.page;
+                
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                document.getElementById(page + '-page').classList.add('active');
+                
+                // Загружаем данные для страницы
+                switch(page) {
+                    case 'profile':
+                        loadProfile();
+                        break;
+                    case 'inventory':
+                        loadInventory();
+                        break;
+                    case 'top':
+                        loadTop();
+                        break;
+                    case 'history':
+                        loadHistory();
+                        break;
+                    case 'cases':
+                        checkBonusCase();
+                        break;
+                }
+            });
+        });
+
+        // ========== ОБРАБОТКА ОТВЕТОВ ОТ БОТА ==========
+        window.handleBotResponse = function(data) {
+            console.log('Ответ от бота:', data);
+            
+            switch(data.type) {
+                case 'profile':
+                    document.getElementById('profileId').textContent = data.id;
+                    document.getElementById('profileName').textContent = data.name;
+                    document.getElementById('profileUsername').textContent = data.username;
+                    document.getElementById('profileDate').textContent = data.date;
+                    break;
+                    
+                case 'balance':
+                    document.getElementById('profileBalance').textContent = formatNumber(data.balance) + ' GRAM';
+                    break;
+                    
+                case 'inventory':
+                    updateInventory(data);
+                    break;
+                    
+                case 'top':
+                    updateTop(data);
+                    break;
+                    
+                case 'history':
+                    updateHistory(data);
+                    break;
+                    
+                case 'bonus_status':
+                    updateBonusStatus(data);
+                    break;
+                    
+                case 'case_result':
+                case 'mass_case_result':
+                case 'sell_result':
+                case 'sell_all_result':
+                    playCaseSound();
+                    showModal('РЕЗУЛЬТАТ', data.html);
+                    loadInventory();
+                    sendToBot({ action: 'get_balance' });
+                    break;
+                    
+                case 'promo_result':
+                    const resultDiv = document.getElementById('promoResult');
+                    resultDiv.style.display = 'flex';
+                    resultDiv.innerHTML = data.message;
+                    resultDiv.style.background = data.success ? 'rgba(52, 199, 89, 0.2)' : 'rgba(255, 59, 48, 0.2)';
+                    if (data.success) {
+                        document.getElementById('promoCode').value = '';
+                        sendToBot({ action: 'get_balance' });
+                    }
+                    break;
+                    
+                case 'admin_status':
+                    isAdmin = data.isAdmin;
+                    if (isAdmin) {
+                        document.getElementById('adminBtn').style.display = 'block';
+                    }
+                    break;
+                    
+                case 'admin_stats':
+                    document.getElementById('totalUsers').textContent = data.total_users;
+                    document.getElementById('todayUsers').textContent = data.today_users;
+                    document.getElementById('totalBalance').textContent = formatNumber(data.total_balance) + ' GRAM';
+                    document.getElementById('totalPromos').textContent = data.total_promos;
+                    break;
+                    
+                case 'admin_result':
+                    showModal('АДМИН', data.message);
+                    break;
+            }
+        };
+
+        // ========== ОБНОВЛЕНИЕ ИНВЕНТАРЯ ==========
+        function updateInventory(data) {
+            const skinsList = document.getElementById('skinsList');
+            document.getElementById('skinCount').textContent = data.count || 0;
+            document.getElementById('totalValue').textContent = formatNumber(data.total_value || '0');
+            
+            if (!data.skins || data.skins.length === 0) {
+                skinsList.innerHTML = '<div class="info-row">📭 НЕТ СКИНОВ</div>';
+                return;
+            }
+            
+            let html = '';
+            data.skins.forEach(skin => {
+                html += `
+                    <div class="skin-item">
+                        <div class="skin-info">
+                            <span class="skin-name">${skin.name}</span>
+                            <span class="skin-rarity">${skin.rarity}</span>
+                        </div>
+                        <div class="skin-price">${formatNumber(skin.price)} GRAM</div>
+                        <button class="sell-btn" onclick="sellSkin(${skin.id})">💰</button>
+                    </div>
+                `;
+            });
+            
+            skinsList.innerHTML = html;
+        }
+
+        // ========== ОБНОВЛЕНИЕ ТОПА ==========
+        function updateTop(data) {
+            const topList = document.getElementById('topList');
+            
+            if (!data.users || data.users.length === 0) {
+                topList.innerHTML = '<div class="info-row">📊 ТОП ПУСТ</div>';
+                return;
+            }
+            
+            let html = '';
+            data.users.forEach((user, index) => {
+                const rankEmoji = index === 0 ? '👑' : index === 1 ? '🥈' : index === 2 ? '🥉' : '📌';
+                html += `
+                    <div class="top-item">
+                        <div class="top-rank">${index + 1}</div>
+                        <div class="top-info">
+                            <div class="top-name">${rankEmoji} ${user.name}</div>
+                            <div class="top-balance">${formatNumber(user.balance)} GRAM</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            topList.innerHTML = html;
+        }
+
+        // ========== ОБНОВЛЕНИЕ ИСТОРИИ ==========
+        function updateHistory(data) {
+            const historyList = document.getElementById('historyList');
+            
+            if (!data.history || data.history.length === 0) {
+                historyList.innerHTML = '<div class="info-row">📜 ИСТОРИЯ ПУСТА</div>';
+                return;
+            }
+            
+            let html = '';
+            data.history.forEach(item => {
+                const isPositive = item.type === 'in';
+                html += `
+                    <div class="history-item ${isPositive ? 'positive' : 'negative'}">
+                        <div class="history-icon">${isPositive ? '➕' : '➖'}</div>
+                        <div class="history-details">
+                            <div class="history-type">${item.description}</div>
+                            <div class="history-date">${item.date}</div>
+                        </div>
+                        <div class="history-amount ${isPositive ? 'positive' : 'negative'}">
+                            ${isPositive ? '+' : '-'}${formatNumber(item.amount)} GRAM
+                        </div>
+                    </div>
+                `;
+            });
+            
+            historyList.innerHTML = html;
+        }
+
+        // ========== ОБНОВЛЕНИЕ БОНУС КЕЙСА ==========
+        function updateBonusStatus(data) {
+            const timerDiv = document.getElementById('bonusTimer');
+            const btn = document.getElementById('openBonusBtn');
+            
+            if (data.available) {
+                timerDiv.innerHTML = '✅ БОНУС ДОСТУПЕН';
+                timerDiv.style.color = '#34c759';
+                btn.disabled = false;
+            } else {
+                timerDiv.innerHTML = `⏳ СЛЕДУЮЩИЙ ЧЕРЕЗ ${data.minutes}М ${data.seconds}С`;
+                timerDiv.style.color = '#ff9500';
+                btn.disabled = true;
+            }
+        }
+
+        // ========== ЗАПУСК ==========
+        createSnowflakes();
+        loadProfile();
+        checkBonusCase();
+        
+        // Проверка админа
+        sendToBot({ action: 'check_admin' });
+        
+        // Закрытие модалки по клику вне
+        document.getElementById('resultModal').addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal')) {
+                closeModal();
+            }
+        });
+
+        // Периодическое обновление
+        setInterval(() => {
+            if (document.getElementById('profile-page').classList.contains('active')) {
+                sendToBot({ action: 'get_balance' });
+            }
+            if (document.getElementById('cases-page').classList.contains('active')) {
+                checkBonusCase();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>
